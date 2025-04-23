@@ -9,6 +9,3 @@ helmCharts:
     version: v1.17.4
     releaseName: knative-operator
     namespace: knative-operator
-
-patchesStrategicMerge:
-  - config-autoscaler-patch.yaml
