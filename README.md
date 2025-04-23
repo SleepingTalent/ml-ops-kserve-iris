@@ -100,9 +100,41 @@ minikube delete
 ## KServe Helm Charts
 
 There seems to be an authentication problem with using the KServe helms charts directly with ArgoCD and Kustomize
+
 ```shell
 oci://ghcr.io/kserve/charts/kserve-crd --version v0.14.1
 oci://ghcr.io/kserve/charts/kserve --version v0.14.1
 ```
 
-TODO: Add details for downloading the 
+A workaround is to pull down these charts locally and reference the local charts in the kustomize file
+
+Add a folder called _charts_ to [Kserve deployment folder](git-ops/infra/kserve) to store the charts locally
+
+In the _charts_ folder run the following commands
+```shell
+helm pull oci://ghcr.io/kserve/charts/kserve-crd --version v0.14.1 --untar
+helm pull oci://ghcr.io/kserve/charts/kserve --version v0.14.1 --untar
+```
+
+Update the Kserve [kustomization.yaml](git-ops/infra/kserve/kustomization.yaml)
+```yaml
+namespace: kserve
+
+resources:
+ - namespace.yaml
+
+helmGlobals:
+  chartHome: ./charts
+
+helmCharts:
+  - name: kserve-crd
+#    repo: oci://ghcr.io/kserve/charts/kserve-crd
+    version: v0.14.1
+    releaseName: kserve-crd
+    namespace: kserve
+  - name: kserve
+#    repo: oci://ghcr.io/kserve/charts/kserve
+    version: v0.14.1
+    releaseName: kserve
+    namespace: kserve
+```
