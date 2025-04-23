@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+
+resources:
+  - argocd-namespace.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v2.14.10/manifests/install.yaml
+  - ml-ops-kserve-repo.yaml
+
+
+patchesStrategicMerge:
+  - config-map-patch.yaml
+  - password-secret-patch.yaml
+
