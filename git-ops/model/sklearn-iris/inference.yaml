@@ -5,6 +5,7 @@ metadata:
   namespace: "sklearn-iris"
   annotations:
     serving.kserve.io/enable-prometheus-scraping: "true"
+    autoscaling.knative.dev/initialScale: "0"
     autoscaling.knative.dev/minScale: "0"
 spec:
   predictor:
