@@ -1,0 +1,22 @@
+namespace: kserve
+
+resources:
+ - namespace.yaml
+
+helmGlobals:
+  chartHome: ./charts
+
+helmCharts:
+  - name: kserve-crd
+#    repo: oci://ghcr.io/kserve/charts/kserve-crd
+    version: v0.14.1
+    releaseName: kserve-crd
+    namespace: kserve
+  - name: kserve
+#    repo: oci://ghcr.io/kserve/charts/kserve
+    version: v0.14.1
+    releaseName: kserve
+    namespace: kserve
+
+
+

@@ -1,0 +1,9 @@
+namespace: sklearn-iris-predictor
+
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+
+
+

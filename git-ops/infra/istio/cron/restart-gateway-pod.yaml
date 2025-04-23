@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restart-istio-gateway-pod
+  namespace: istio-system
+spec:
+  template:
+    spec:
+      serviceAccountName: pod-deleter
+      containers:
+        - name: delete-istio-gateway-pod
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Sleeping for 30 seconds..."
+              sleep 30
+              echo "Deleting pods with label 'helm.sh/chart=gateway-1.25.0' in namespace istio-system"
+              kubectl delete pod -l "helm.sh/chart=gateway-1.25.0" -n istio-system
+      restartPolicy: Never
+  backoffLimit: 1

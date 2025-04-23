@@ -1,0 +1,8 @@
+namespace: sklearn-iris
+
+resources:
+  - namespace.yaml
+  - inference.yaml
+
+
+

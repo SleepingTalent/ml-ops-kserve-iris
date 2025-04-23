@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ml-ops-kserve-platform
+  namespace: argocd
+spec:
+  generators:
+     - list:
+         elements:
+          - component: cert-manager
+            wave: "1"
+          - component: istio
+            wave: "2"
+          - component: knative
+            wave: "3"
+          - component: kserve
+            wave: "4"
+  template:
+    metadata:
+      name: "{{component}}"
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{wave}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/SleepingTalent/ml-ops-kserve-iris.git
+        targetRevision: main
+        path: git-ops/infra/{{component}}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

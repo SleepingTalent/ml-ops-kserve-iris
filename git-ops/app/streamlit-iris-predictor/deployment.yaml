@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit-iris
+  labels:
+    app: streamlit-iris
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamlit-iris
+  template:
+    metadata:
+      labels:
+        app: streamlit-iris
+    spec:
+      containers:
+        - name: streamlit-iris
+          image: sleepingtalent/streamlit-iris-predictor:latest
+          ports:
+            - containerPort: 8501
+          env:
+            - name: MODEL_URL
+              value: "http://sklearn-iris.sklearn-iris.svc.cluster.local/v1/models/sklearn-iris:predict"
