@@ -5,5 +5,8 @@ metadata:
   namespace: knative-serving
 spec:
   config:
+    autoscaler: |
+      enable-scale-to-zero: "true"
+      allow-zero-initial-scale: "true"
     domain:
       noveria.ai: ""
