@@ -1,5 +1,7 @@
 # ml-ops-kserve-iris
 
+The companion article for this project can be found on [medium](https://medium.com/@jaybono30/deploy-a-scikit-learn-iris-model-on-a-gitops-driven-mlops-platform-with-minikube-argo-cd-kserve-b2f3e2d586aa)
+
 # Overview
 This is an example demo project demonstrating the use of MiniKube, Argocd and Kserve in ML Ops processes
 
