@@ -340,6 +340,46 @@ ArgoCD should now show ML Ops Platofrm Components have been installed
 
 # Deploy the Sklearn-Iris Model
 
+To deploy the sklearn-iris model from the root of the repo run the following command:
+
+```shell
+./bootstrap-cluster.sh deploy_models
+```
+
+**What does this command do?**
+
+It deploys the models by running the following:
+
+```shell
+deploy_models() {
+  print_info "Deploying models to cluster..."
+  kubectl apply -f ./git-ops/model/bootstrap-models.yaml
+
+  check_pods_ready "sklearn-iris" "app.kubernetes.io/instance=sklearn-iris" "sklearn-iris" "20s" "20"
+}
+```
+
+**deploy_models()** installs models by applying an ArgoCD ApplicationSet. It then waits for pods to become Ready, ensuring that the InferenceService is up and running.
+
+<details>
+<summary>Example Output</summary>
+
+```shell
+ml-ops-kserve-iris % ./bootstrap-cluster.sh deploy_models
+[INFO] Deploying models...
+[INFO] Deploying models to cluster...
+applicationset.argoproj.io/ml-ops-kserve-models created
+[WARNING] ⏳ Waiting for sklearn-iris... Attempt 1/20
+pod/sklearn-iris-predictor-00001-deployment-8766fcd58-49vgz condition met
+[INFO] ✅ sklearn-iris is ready! (Waited 22s)
+```
+
+</details>
+
+**sklearn-iris** should now be deployed and listed in ArgoCD UI
+
+![argocd-sklearn-iris](design/argocd-sklearn-iris.png)
+
 
 <details>
 <summary>Kserve Helm Chart Authentication Workaround</summary>
