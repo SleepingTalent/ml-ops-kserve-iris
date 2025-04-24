@@ -380,6 +380,132 @@ pod/sklearn-iris-predictor-00001-deployment-8766fcd58-49vgz condition met
 
 ![argocd-sklearn-iris](design/argocd-sklearn-iris.png)
 
+## Smoke Test Sklearn-Iris
+
+We can run a quick smoke test to ensure the model has been deployed correctly.
+
+To run a test against the model run the following command
+
+```shell
+./bootstrap-cluster.sh test_models
+```
+
+<details>
+<summary>Example Output</summary>
+
+```shell
+[INFO] Testing model...
+[INFO] Retrieving Ingress Gateway Service...
+[INFO] Ingress Gateway Service: istio-ingressgateway
+[INFO] Starting port-forwarding for Ingress Gateway Service on local port 8081 to target port 80...
+[INFO] Port-forward process started with PID 74345
+[INFO] Retrieving the service hostname from the sklearn-iris inferenceservice...
+[INFO] Service Hostname: sklearn-iris.sklearn-iris.noveria.ai
+[INFO] Ingress Host: localhost
+[INFO] Ingress Port: 8081
+[INFO] Sending prediction request...
+*   Trying [::1]:8081...
+* Connected to localhost (::1) port 8081
+> POST /v1/models/sklearn-iris:predict HTTP/1.1
+> Host: sklearn-iris.sklearn-iris.noveria.ai
+> User-Agent: curl/8.4.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 130
+> 
+< HTTP/1.1 200 OK
+< content-length: 21
+< content-type: application/json
+< date: Thu, 24 Apr 2025 09:22:47 GMT
+< server: istio-envoy
+< x-envoy-upstream-service-time: 13
+< 
+* Connection #0 to host localhost left intact
+{"predictions":[1,1]}
+[INFO] Test complete...
+```
+
+</details>
+
+# Deploy the Streamlit-Iris-Predictor App
+
+To deploy the streamlit-iris-predictor app from the root of the repo run the following command:
+
+```shell
+./bootstrap-cluster.sh deploy_apps
+```
+
+**What does this command do?**
+
+It deploys the apps by running the following:
+
+```shell
+deploy_apps() {
+  print_info "Deploying apps to cluster..."
+  kubectl apply -f ./git-ops/app/bootstrap-apps.yaml
+
+  check_pods_ready "sklearn-iris-predictor" "app=streamlit-iris" "sklearn-iris-predictor" "10s" "15"
+
+  print_info "Exposing streamlit-iris-service..."
+  minikube service streamlit-iris-service -n sklearn-iris-predictor &
+}
+```
+
+**deploy_apps()** installs apps by applying an ArgoCD ApplicationSet. It then waits for pods to become Ready, ensuring that the Application is up and running. It then exposes the applications service so it can be accessed locally.
+
+<details>
+<summary>Example Output</summary>
+
+```shell
+ml-ops-kserve-iris % ./bootstrap-cluster.sh deploy_apps
+[INFO] Deploying app...
+[INFO] Deploying apps to cluster...
+applicationset.argoproj.io/ml-ops-kserve-apps created
+[WARNING] ⏳ Waiting for sklearn-iris-predictor... Attempt 1/15
+pod/streamlit-iris-7b94db869b-djwst condition met
+[INFO] ✅ sklearn-iris-predictor is ready! (Waited 5s)
+[INFO] Exposing streamlit-iris-service...
+jamesfairbairn@Jamess-MacBook-Pro ml-ops-kserve-iris % |------------------------|------------------------|-------------|--------------|
+|       NAMESPACE        |          NAME          | TARGET PORT |     URL      |
+|------------------------|------------------------|-------------|--------------|
+| sklearn-iris-predictor | streamlit-iris-service |             | No node port |
+|------------------------|------------------------|-------------|--------------|
+😿  service sklearn-iris-predictor/streamlit-iris-service has no node port
+❗  Services [sklearn-iris-predictor/streamlit-iris-service] have type "ClusterIP" not meant to be exposed, however for local development minikube allows you to access this !
+🏃  Starting tunnel for service streamlit-iris-service.
+|------------------------|------------------------|-------------|------------------------|
+|       NAMESPACE        |          NAME          | TARGET PORT |          URL           |
+|------------------------|------------------------|-------------|------------------------|
+| sklearn-iris-predictor | streamlit-iris-service |             | http://127.0.0.1:58690 |
+|------------------------|------------------------|-------------|------------------------|
+🎉  Opening service sklearn-iris-predictor/streamlit-iris-service in default browser...
+❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+```
+
+</details>
+
+The streamlit application should open in your default browser, if not it can be accessed on in the exposed port for example http://127.0.0.1:58690
+
+![streamlit-iris-predictor](design/streamlit-iris-predictor.png)
+
+## Test Payloads
+
+The Iris Prediction App can be tested with the following payloads to test each Iris type:
+
+Setosa
+```shell
+{ "instances": [ [5.1, 3.5, 1.4, 0.2] ] }
+```
+
+Versicolor
+```shell
+{ "instances": [ [6.0, 2.9, 4.5, 1.5] ] }
+```
+
+Virginica
+```shell
+{ "instances": [ [6.9, 3.1, 5.4, 2.1] ] }
+```
 
 <details>
 <summary>Kserve Helm Chart Authentication Workaround</summary>
